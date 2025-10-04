@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>MQTTGO 前端測試</title>
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+</head>
+<body>
+  <h2>MQTTGO 訊息發送 (WebSocket)</h2>
+
+  <label>主題 (Topic):</label>
+  <input type="text" id="topic" value="medicine/nihsstu"><br><br>
+
+  <label>訊息 (Payload):</label>
+  <input type="text" id="message" value="Hello MQTT"><br><br>
+
+  <button onclick="sendMessage()">送出訊息</button>
+  <p id="status">尚未連線...</p>
+
+  <script>
+    // 建立 MQTT WebSocket 連線
+    const client = mqtt.connect("wss://broker.mqttgo.io:8084/mqtt", {
+      clientId: "web_" + Math.random().toString(16).substr(2, 8),
+      clean: true,
+      connectTimeout: 4000,
+      reconnectPeriod: 1000
+    });
+
+    client.on("connect", () => {
+      document.getElementById("status").innerText = "? 已連線到 MQTTGO";
+    });
+
+    client.on("error", (err) => {
+      document.getElementById("status").innerText = "? 連線錯誤: " + err.message;
+      console.error("連線錯誤:", err);
+    });
+
+    client.on("reconnect", () => {
+      document.getElementById("status").innerText = "?? 重新連線中...";
+    });
+
+    function sendMessage() {
+      const topic = document.getElementById("topic").value;
+      const message = document.getElementById("message").value;
+
+      if (!topic || !message) {
+        alert("請輸入主題和訊息！");
+        return;
+      }
+
+      client.publish(topic, message, {}, (err) => {
+        if (err) {
+          document.getElementById("status").innerText = "? 發送失敗: " + err.message;
+        } else {
+          document.getElementById("status").innerText = `? 已送出訊息到主題: ${topic}`;
+        }
+      });
+    }
+  </script>
+</body>
+</html>
