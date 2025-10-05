@@ -4,18 +4,111 @@
   <meta charset="UTF-8">
   <title>MQTTGO 前端測試</title>
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+  <style>
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(135deg, #141E30, #243B55);
+      color: #f0f0f0;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 30px 40px;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+      animation: fadeIn 1.5s ease;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #00d4ff;
+      text-shadow: 0 0 10px #00d4ff, 0 0 20px #00d4ff;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-size: 14px;
+      text-align: left;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      font-size: 14px;
+    }
+
+    input::placeholder {
+      color: #ddd;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #00c6ff, #0072ff);
+      color: #fff;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+    }
+
+    #status {
+      margin-top: 20px;
+      font-size: 14px;
+      font-weight: bold;
+      color: #ffdd57;
+      animation: blink 1.5s infinite;
+    }
+
+    @keyframes blink {
+      0% { opacity: 1; }
+      50% { opacity: 0.6; }
+      100% { opacity: 1; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
 <body>
-  <h2>MQTTGO 訊息發送 (WebSocket)</h2>
+  <div class="container">
+    <h2>⚡ MQTTGO 測試介面 ⚡</h2>
 
-  <label>主題 (Topic):</label>
-  <input type="text" id="topic" value="medicine/nihsstu"><br><br>
+    <label>主題 (Topic):</label>
+    <input type="text" id="topic" value="medicine/nihsstu" placeholder="輸入主題...">
 
-  <label>訊息 (Payload):</label>
-  <input type="text" id="message" value="Hello MQTT"><br><br>
+    <label>訊息 (Payload):</label>
+    <input type="text" id="message" value="Hello MQTT" placeholder="輸入訊息...">
 
-  <button onclick="sendMessage()">送出訊息</button>
-  <p id="status">尚未連線...</p>
+    <button onclick="sendMessage()">送出訊息</button>
+    <p id="status">尚未連線...</p>
+  </div>
 
   <script>
     // 建立 MQTT WebSocket 連線
@@ -27,16 +120,19 @@
     });
 
     client.on("connect", () => {
-      document.getElementById("status").innerText = "? 已連線到 MQTTGO";
+      document.getElementById("status").innerText = "✅ 已連線到 MQTTGO";
+      document.getElementById("status").style.color = "#4CAF50";
     });
 
     client.on("error", (err) => {
-      document.getElementById("status").innerText = "? 連線錯誤: " + err.message;
+      document.getElementById("status").innerText = "❌ 連線錯誤: " + err.message;
+      document.getElementById("status").style.color = "#FF3D3D";
       console.error("連線錯誤:", err);
     });
 
     client.on("reconnect", () => {
-      document.getElementById("status").innerText = "?? 重新連線中...";
+      document.getElementById("status").innerText = "🔄 重新連線中...";
+      document.getElementById("status").style.color = "#ffdd57";
     });
 
     function sendMessage() {
@@ -50,9 +146,11 @@
 
       client.publish(topic, message, {}, (err) => {
         if (err) {
-          document.getElementById("status").innerText = "? 發送失敗: " + err.message;
+          document.getElementById("status").innerText = "⚠️ 發送失敗: " + err.message;
+          document.getElementById("status").style.color = "#FF3D3D";
         } else {
-          document.getElementById("status").innerText = `? 已送出訊息到主題: ${topic}`;
+          document.getElementById("status").innerText = `📤 已送出訊息到主題: ${topic}`;
+          document.getElementById("status").style.color = "#00d4ff";
         }
       });
     }
